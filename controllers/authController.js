@@ -1,5 +1,6 @@
 import User from "../model/userSchema.js";
 import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken"
 
 const userRegister = async (req, res) => {
   try {
@@ -13,11 +14,6 @@ const userRegister = async (req, res) => {
       });
     }
 
-    
-    username = username.trim();
-    email = email.trim().toLowerCase();
-
-    
     const userExists = await User.findOne({
       $or: [{ username }, { email }]
     });
@@ -36,7 +32,6 @@ const userRegister = async (req, res) => {
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 
-    
     const newUser = new User({
       username,
       email,
@@ -65,4 +60,51 @@ const userRegister = async (req, res) => {
   }
 };
 
-export { userRegister };
+const userLogin = async(req , res)=>{
+  try{
+    const {email , password} = req.body ;
+    const emailExist = await User.findOne({email});
+    if(!email){
+      return res.status(400).json({
+        success : false ,
+        message : "Email doesn't exist"
+      });
+    }
+    const matchPassword = await bcrypt.compare(password , emailExist.password);
+    if(!matchPassword){
+      return res.status(401).json({
+        success : false ,
+        message : "Password is incorrect"
+      })
+    }
+    const accessToken = await jwt.sign({
+      userId : emailExist._id ,
+      username : emailExist.username,
+      email : emailExist.email,
+      password : emailExist.password
+
+    }, process.env.JWT_SECRET_KEY, {expiresIn : "15m"});
+    
+    if(!accessToken){
+      return res.status(400).json({
+        success : false , 
+        message : "Login failed"
+      })
+    }
+    return res.status(200).json({
+      success : true ,
+      message : "Login successfull",
+      token : accessToken
+    })
+
+  }
+  catch(err){
+    console.log(err);
+    return res.status(500).json({
+      success : false ,
+      message : "Something went wrong"
+    })
+  }
+}
+
+export { userRegister , userLogin };
