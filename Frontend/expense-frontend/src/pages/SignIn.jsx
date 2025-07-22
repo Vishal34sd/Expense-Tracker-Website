@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import {useState} from "react"
 import { useNavigate } from "react-router-dom";
 import axios from "axios"
+import { storeToken } from "../utils/token";
 
 const SignIn = () => {
   const [email , setEmail] = useState("")
@@ -12,7 +13,8 @@ const SignIn = () => {
   const formHandler = async(event)=>{
     event.preventDefault();
     try{
-      const res = await axios.post("http://localhost:8080/api/v1/login", {email , password})
+      const res = await axios.post("http://localhost:8080/api/v1/login", {email , password});
+      storeToken(res.data.token);
       navigate("/dashboard")
     }
     catch(err){

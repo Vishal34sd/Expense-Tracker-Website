@@ -4,6 +4,8 @@ import { Pie } from "react-chartjs-2"
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js"
 import { useState , useEffect} from "react"
 import axios from "axios";
+import { getToken } from "../utils/token";
+import { decodeToken } from "../utils/token";
 ChartJS.register(ArcElement, Tooltip, Legend);
 
 const UserDashboard = () => {
@@ -17,14 +19,19 @@ const UserDashboard = () => {
 
   const fetchData = async () => {
     try {
-      const res = await axios.get("http://localhost:8080/api/v1/get");
-      console.log(res.data);
+      const res = await axios.get("http://localhost:8080/api/v1/get",{
+        headers : {
+          Authorization : `Bearer ${getToken()}`
+        }
+      });
+      
       setTransaction(res.data.data);
     }
     catch (err) {
       console.log(err)
     }
   }
+  const decodedData = decodeToken(getToken())
 
   const totalEarning = transaction.filter((item)=>item.type==="income").reduce((sum, item)=>sum +item.amount, 0);
   const totalSpent = transaction.filter((item)=>item.type==="expense").reduce((sum, item)=>sum +item.amount, 0);
@@ -61,7 +68,7 @@ const UserDashboard = () => {
       </aside>
 
       <main className="flex-1 p-6">
-        <h1 className="text-3xl font-bold text-teal-400 mb-2">Welcome, User 👋</h1>
+        <h1 className="text-3xl font-bold text-teal-400 mb-2">Welcome, {decodedData.username}</h1>
         <p className="text-gray-400 mb-8">Here’s your financial overview:</p>
 
        <div className="grid gap-6 sm:grid-cols-2 md:grid-cols-4">
