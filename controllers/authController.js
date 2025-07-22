@@ -38,7 +38,7 @@ const userRegister = async (req, res) => {
       password: hashedPassword
     });
 
-    const savedUser = await newUser.save();
+     const  savedUser= await newUser.save();
 
     if (!savedUser) {
       return res.status(400).json({
@@ -49,7 +49,8 @@ const userRegister = async (req, res) => {
 
     res.status(201).json({
       success: true,
-      message: "User registered successfully"
+      message: "User registered successfully",
+      data : newUser
     });
   } catch (err) {
     console.error("Registration error:", err);

@@ -5,8 +5,8 @@ const router = express.Router();
 
 
 router.get("/get", getAllTransaction);
-router.post("/post", addTransaction);
-router.put("/update/:id", editTransaction);
+router.post("/add", addTransaction);
+router.put("/edit/:id", editTransaction);
 router.delete("/delete/:id", deleteTransaction );
 
 
